@@ -21,7 +21,12 @@ The instructions below should work to configure both the Adafruit and Sparkfun f
 
 *8. Disconnect the Arduino*
 
-*9. Compose the "config.txt" file which gives instructions to the media player:* The firmware will respond to the following commands in the "config.txt" file. Each command is written in the form KEYWORD=value, and commands are case sensitive.
+*9. Compose the "config.txt" file which gives instructions to the media player:* The firmware will respond to the following commands in the "config.txt" file. Each command is written in the form KEYWORD=value, and commands are case sensitive. See the "Keyword" section below for information about the commands available.
+
+*10. Load the media files and "config.txt" file onto the SD card:* Insert the SD card into your computer and load the files. Eject the card and click it onto the arduino shield.
+
+
+#Keywords
 
 **KEYWORD: interrupt**
 
