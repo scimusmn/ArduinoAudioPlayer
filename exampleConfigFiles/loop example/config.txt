@@ -1,0 +1,3 @@
+interrupt=0
+loop=track001.mp3
+volPot=0

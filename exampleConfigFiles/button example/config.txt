@@ -1,0 +1,5 @@
+interrupt=0
+once=1
+debounce=100
+pushButton[1]=track001.mp3
+volEncoder=0

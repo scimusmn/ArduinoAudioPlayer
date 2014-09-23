@@ -1,9 +1,6 @@
-Readme file for ArduinoAudioPlayer
+##Readme file for ArduinoAudioPlayer##
 
-    This project's goal is to provide an Arduino powered media player, 
-which is configured through a simple config file. The workings of
-this config file will be explained below. This file will also cover the basic 
-installation process for new Audio players.
+This project's goal is to provide an Arduino powered media player, which is configured through a simple config file. The workings of this config file will be explained below. This file will also cover the basic installation process for new Audio players.
 
 The instructions below should work to configure both the Adafruit and Sparkfun flavors of the media player.
 
@@ -26,20 +23,61 @@ The instructions below should work to configure both the Adafruit and Sparkfun f
 
 *9. Compose the "config.txt" file which gives instructions to the media player:* The firmware will respond to the following commands in the "config.txt" file. Each command is written in the form KEYWORD=value, and commands are case sensitive.
 
-#KEYWORD: interrupt
+**KEYWORD: interrupt**
 
-    ACCEPTED VALUES: [0,1]
+*ACCEPTED VALUES:* [0,1]
 
-    RESULT: If value is "0", any track which is currently playing will play in its entirety before another track may be played. Else, if value is "1", currently playing tracks may be stopped to play another track.
+*RESULT:* If value is "0", any track which is currently playing will play in its entirety before another track may be played. Else, if value is "1", currently playing tracks may be stopped to play another track.
 
-#KEYWORD: debounce
+**KEYWORD: debounce**
 
-    ACCEPTED VALUES: [any integer from 0 to 65536]
+*ACCEPTED VALUES:* [any integer from 0 to 65536]
 
-    RESULT: Tell the program how long to wait (in milliseconds) after a button press before another button press can be detected. This prevents bad contacts in switches from double triggering an action.
+*RESULT:* Tell the program how long to wait (in milliseconds) after a button press before another button press can be detected. This prevents bad contacts in switches from double triggering an action.
 
-#KEYWORD: once
+**KEYWORD: once**
 
-    ACCEPTED VALUES: [0,1]
+*ACCEPTED VALUES:* [0,1]
 
-    RESULT: 
+*RESULT:* If value is "1", the audio player will only play the given audio clip once per button press. If "0", the track will play repeatedly, until the button is released.
+
+**KEYWORD: stopOnRelease**
+
+*ACCEPTED VALUES:* [0,1]
+
+*RESULT:* If "1", a track that was triggered by a button press will stop when the button is released. Else, the audio file will continue to play on release.
+
+**KEYWORD: loop**
+
+*ACCEPTED VALUES:* any audio file track name as it appears on the memory card.
+
+*RESULT:* If this command appears, the given audio file will loop continuously (unless the interrupt keyword is set, in which case the looping audio can be interrupted by a track from a button press.) Multiple tracks may be queued to loop in sequence using this command; simply add more "loop" keywords to queue more tracks.
+
+**KEYWORD: pushButton[BUTTON_NUMBER]**
+
+*ACCEPTED VALUES:* any audio file track name as it appears on the memory card.
+
+*EXTRA OPTIONS:* Preceed this command with a "!" to invert it's operation
+
+*EXAMPLES:* 
+
+pushButton[0]=track001.mp3   -> plays track001.mp3 when pressed.
+
+!pushButton[0]=track001.mp3   -> plays track001.mp3 when released.
+
+*RESULT:* Tells the audioPLayer to trigger a certain track from input from a button attached to A0-A5 on the arduino.
+
+**KEYWORD: volEncoder**
+
+*ACCEPTED VALUES:* an integer from 0 to 5, corresponding to a the analog input to which the potentiometer is connected.
+
+*RESULT:* Tells the arduino to listen on an analog input pin, dictated by the value, to increment or decrement the volume. If the knob is turned clockwise, it will increment the volume upward, and if turned CCW, it will decrement the volume.
+
+**KEYWORD: volPot**
+
+*ACCEPTED VALUES:* an integer from 0 to 5, corresponding to a the analog input to which the potentiometer is connected.
+
+*RESULT:* Tells the arduino to listen on an analog input pin, dictated by the value, to directly set the volume. Fully CW on the pot is max volume, and fully CCW is minimum.
+
+
+
