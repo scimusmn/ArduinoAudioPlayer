@@ -27,13 +27,19 @@ audioControl audioCtl;
 // DREQ should be an Int pin, see http://arduino.cc/en/Reference/attachInterrupt
 #define DREQ 3  
 
-Adafruit_VS1053_FilePlayer musicPlayer =// create shield object!
+
+Adafruit_VS1053_FilePlayer musicPlayer =// create shield-example object!
   Adafruit_VS1053_FilePlayer(SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
 
 void setup() {
 
+  uint8_t result; //result code
+
   Serial.begin(9600);
-  
+  SD.begin(CARDCS); 
+ 
+  audioCtl.setup(&musicPlayer);
+
   //Initialize the MP3 Player Shield
   if (! musicPlayer.begin()) { // initialise the music player
      Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
@@ -41,16 +47,7 @@ void setup() {
   }
   Serial.println(F("VS1053 found"));
   
-  SD.begin(CARDCS); 
-  
-  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);
- 
-  audioCtl.setup(&musicPlayer);
-  
-  musicPlayer.setVolume(20, 20);
-  
-  //musicPlayer.startPlayingFile("mojave.mp3");
-  audioCtl.trigger();
+  musicPlayer.setVolume(2, 2);
 }
 
 

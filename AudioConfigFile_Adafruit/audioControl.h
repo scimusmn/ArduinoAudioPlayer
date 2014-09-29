@@ -21,7 +21,6 @@ public:
   int input;
   audioCmd();
   void execute();
-  void trigger();
   bool debounce();
 };
 
@@ -38,7 +37,6 @@ public:
   
   audioControl(void);
   void setup(Adafruit_VS1053_FilePlayer *);
-  void trigger();
   
   void idle();
   

@@ -34,31 +34,16 @@ void audioCmd::execute(){
       pressed = false;
       if(stopOnRelease) mp3->stopPlaying();
     }
-    else if(!pressed&&bRead){
-      lTimer = debounceTime+millis();
-      elapsed = false;
-      pressed=true;
-      Serial.println("Pressed!");
-    }
+    else if(!pressed&&bRead) lTimer = debounceTime+millis(), elapsed = false,pressed=true;
     
     if(lTimer<millis()&&!elapsed&& pressed&&!once) lTimer = debounceTime+millis(), elapsed = false;
     
     if(debounce()){
       if(audioInterrupt||(!audioInterrupt&&mp3->stopped())){
-        if(bRead){
-          mp3->stopPlaying();
-          Serial.print ("Playing ");
-          Serial.print(track);
-          mp3->startPlayingFile(track);
-          playing=true;
-        }
+        if(bRead) mp3->stopPlaying(),mp3->startPlayingFile(track),playing=true;
       }
     }
   }
-}
-
-void audioCmd::trigger(){
-  mp3->startPlayingFile(track);
 }
 
 bool audioCmd::debounce(){
@@ -83,15 +68,19 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
     int linePos = 0;
   
     while (cfg.peek()>=0){//sdin.getline(buffer, 32, '\n') || sdin.gcount()) {
-      char newRead=cfg.read();
-      if(newRead>=32) buffer[linePos++] = newRead;              //if newRead is a printed char
-      if(linePos>=32||cfg.peek()=='\n'||cfg.peek()<=0){
+      buffer[linePos++] = cfg.read();
+      if(linePos>=32||buffer[linePos-1]=='\n'){
+      /*int count = sdin.gcount();
+      if (sdin.fail()) {
+        sdin.clear(sdin.rdstate() & ~ios_base::failbit);
+      } else if (sdin.eof()) {
+      } else count--;*/
+        
         curLine="";
         for(int j=0; j<linePos; j++){
           curLine += String(buffer[j]);
         }
-        Serial.print(line_number,DEC);
-        Serial.print(": ");
+        //cout << buffer << endl;
         Serial.println(buffer);
         linePos=0;
         line_number++;
@@ -99,13 +88,16 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
         else if(curLine.indexOf("volPot")>=0) volPot = curLine.substring(curLine.indexOf('=')+1).toInt();
         else if(curLine.indexOf("interrupt")>=0) audioInterrupt = curLine.substring(curLine.indexOf('=')+1).toInt();
         else if(curLine.indexOf("debounce")>=0) debounceTime = curLine.substring(curLine.indexOf('=')+1).toInt();
-        else if(curLine.indexOf("once")>=0) once = curLine.substring(curLine.indexOf('=')+1).toInt(),Serial.println("once!");//cout << "once" << endl;
+        else if(curLine.indexOf("once")>=0) once = curLine.substring(curLine.indexOf('=')+1).toInt();//cout << "once" << endl;
         else if(curLine.indexOf("stopOnRelease")>=0) stopOnRelease = curLine.substring(curLine.indexOf('=')+1).toInt();
         else if(curLine.indexOf("loop")>=0){
           String track = curLine.substring(curLine.indexOf('=')+1);
           cmds[numCmds] = new audioCmd();
           cmds[numCmds]->type=LOOP;
-          track.toCharArray(cmds[numCmds]->track,16);
+          for(int j=0; j<16; j++){
+            cmds[numCmds]->track[j] = track[j];
+          }
+          //cout << cmds[numCmds]->track << endl;
           numCmds++;
         }
         else if(curLine.indexOf("pushButton")>=0){
@@ -114,13 +106,13 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
           cmds[numCmds]->type=BUTTON_PRESS;
           if(curLine.indexOf("!")>=0) cmds[numCmds]->invert=true;//cout << "Invert" << endl;
           cmds[numCmds]->input=curLine.substring(curLine.indexOf('[')+1,curLine.indexOf(']')).toInt()+14;
-          Serial.print("Button on pin ");
-          Serial.println(cmds[numCmds]->input,DEC);
+          //cout << "number is " << cmds[numCmds]->input << endl;
           pinMode(cmds[numCmds]->input,INPUT_PULLUP);
-          track.toCharArray(cmds[numCmds]->track,16);
+          for(int j=0; j<16; j++){
+            cmds[numCmds]->track[j] = track[j];
+          }
           numCmds++;
         }
-        memset(buffer,0,sizeof(buffer));
       }
     }
 }
@@ -170,11 +162,5 @@ void audioControl::idle(){
  if(volPot>=0) volumePot(volPot);
  for(int i=0; i<numCmds; i++){
    cmds[i]->execute();
- }
-}
-
-void audioControl::trigger(){
- for(int i=0; i<numCmds; i++){
-   cmds[i]->trigger();
  }
 }
