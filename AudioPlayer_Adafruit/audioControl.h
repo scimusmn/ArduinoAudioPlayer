@@ -13,6 +13,9 @@ class audioCmd {
 public:
   //char track[16];
   String track[16];
+  int numTracks;
+  int curTrack;
+  int nextTrack;
   cmdType type;
   bool invert;
   bool pressed;

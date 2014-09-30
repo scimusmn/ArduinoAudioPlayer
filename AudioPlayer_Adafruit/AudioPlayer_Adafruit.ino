@@ -45,12 +45,14 @@ void setup() {
   
   musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);
  
+  musicPlayer.setVolume(20, 20);
+ 
   audioCtl.setup(&musicPlayer);
   
-  musicPlayer.setVolume(20, 20);
+  //
   
   //musicPlayer.startPlayingFile("mojave.mp3");
-  audioCtl.trigger();
+  //audioCtl.trigger();
 }
 
 
