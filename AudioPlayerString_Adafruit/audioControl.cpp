@@ -18,13 +18,16 @@ Adafruit_VS1053_FilePlayer * mp3 = 0;
 audioCmd::audioCmd(){
   input=0;
   lTimer =0;
+  numTracks = 0;
   invert = false;
   pressed =false;
+  curTrack = 0;
+  memset(track,0,16);
 }
 
 void audioCmd::execute(){
   if(type==LOOP){
-    if(mp3->stopped()) mp3->startPlayingFile(track);
+    if(mp3->stopped()&&numTracks) play(numTracks-1);
   }
   else if(type==BUTTON_PRESS){
     bool bRead = digitalRead(input);
@@ -45,23 +48,50 @@ void audioCmd::execute(){
     
     if(debounce()){
       if(audioInterrupt||(!audioInterrupt&&mp3->stopped())){
-        if(bRead){
+        if(bRead&&numTracks){
           mp3->stopPlaying();
-          Serial.print ("Playing ");
-          Serial.print(track);
-          mp3->startPlayingFile(track);
+          //Serial.print ("Playing ");
+          //Serial.print(track[numTracks-1]);
+          play(0);
           playing=true;
         }
       }
     }
   }
   else if(type==POT_SELECT){
+    int newVal = analogRead(input);
+  
+    int newTrack = map(newVal,0,1023,0,numTracks);
+    int segment = 1023/numTracks;
     
+    if(newTrack!=nextTrack&&(newVal%segment)>10&&(newVal%segment)<segment-10){
+      Serial.print("New track is ");
+      Serial.println(newTrack,DEC);
+      nextTrack=newTrack;
+      mp3->stopPlaying();
+      mp3->softReset();
+      lTimer = debounceTime+millis();
+      elapsed = false;
+    }
+    
+    if(debounce()){
+      if(audioInterrupt||(!audioInterrupt&&mp3->stopped())){
+        if(nextTrack!=curTrack){
+          if(nextTrack<numTracks) curTrack=nextTrack;
+          else curTrack=numTracks-1;
+          play(curTrack);
+        }
+      } 
+    }
   }
 }
 
-void audioCmd::trigger(){
-  mp3->startPlayingFile(track);
+void audioCmd::play(int which){
+  char trk[track[which].length()+2];
+  track[which].toCharArray(trk,track[which].length()+2);
+  Serial.print ("Playing ");
+  Serial.println(trk);
+  mp3->startPlayingFile(trk);
 }
 
 bool audioCmd::debounce(){
@@ -104,11 +134,16 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
         else if(curLine.indexOf("debounce")>=0) debounceTime = curLine.substring(curLine.indexOf('=')+1).toInt();
         else if(curLine.indexOf("once")>=0) once = curLine.substring(curLine.indexOf('=')+1).toInt(),Serial.println("once!");//cout << "once" << endl;
         else if(curLine.indexOf("stopOnRelease")>=0) stopOnRelease = curLine.substring(curLine.indexOf('=')+1).toInt();
+        else if(curLine.indexOf("volume")>=0){
+          int newVol = map(curLine.substring(curLine.indexOf('=')+1).toInt(),0,100,127,2);
+          mp3->setVolume(newVol,newVol);
+        }
         else if(curLine.indexOf("loop")>=0){
           String track = curLine.substring(curLine.indexOf('=')+1);
           cmds[numCmds] = new audioCmd();
           cmds[numCmds]->type=LOOP;
-          track.toCharArray(cmds[numCmds]->track,16);
+          cmds[numCmds]->track[0]=track;
+          cmds[numCmds]->numTracks=1;
           numCmds++;
         }
         else if(curLine.indexOf("pushButton")>=0){
@@ -120,15 +155,32 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
           Serial.print("Button on pin ");
           Serial.println(cmds[numCmds]->input,DEC);
           pinMode(cmds[numCmds]->input,INPUT_PULLUP);
-          track.toCharArray(cmds[numCmds]->track,16);
+          cmds[numCmds]->track[0]=track;
+          cmds[numCmds]->numTracks=1;
           numCmds++;
         }
         else if(curLine.indexOf("potSelect")>=0){
           int which = curLine.substring(curLine.indexOf('[')+1,curLine.indexOf(']')).toInt();
-          bool found = false;
-          for(int i=0; i<numCmds; i++){
-            if(which==cmds[i]->input) found=true;
+          signed int found = -1;
+          for(signed int i=0; i<numCmds; i++){
+            if(which==cmds[i]->input) found=i;
           }
+          if(found<0){
+            cmds[numCmds] = new audioCmd();
+            found = numCmds;
+            cmds[numCmds]->type=POT_SELECT;
+            cmds[numCmds]->input=curLine.substring(curLine.indexOf('[')+1,curLine.indexOf(']')).toInt();
+            Serial.print("PotSelect on pin ");
+            Serial.println(cmds[numCmds]->input,DEC);
+            numCmds++;
+          }
+          int trackNum = curLine.substring(curLine.indexOf('(')+1,curLine.indexOf(')')).toInt();
+          String track = curLine.substring(curLine.indexOf('=')+1);
+          if(cmds[found]->track[trackNum].length()<1) cmds[found]->numTracks++;
+          cmds[found]->track[trackNum] = track;
+          Serial.print("New track: ");
+          Serial.print(cmds[found]->track[trackNum]+" with number ");
+          Serial.println(cmds[found]->numTracks,DEC);
         }
         memset(buffer,0,sizeof(buffer));
       }
@@ -185,6 +237,6 @@ void audioControl::idle(){
 
 void audioControl::trigger(){
  for(int i=0; i<numCmds; i++){
-   cmds[i]->trigger();
+   cmds[i]->play(8);
  }
 }
