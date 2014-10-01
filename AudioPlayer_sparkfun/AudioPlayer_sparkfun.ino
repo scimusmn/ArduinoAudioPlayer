@@ -45,7 +45,7 @@ void setup() {
   audioCtl.setup(&MP3player);
 
   //Initialize the MP3 Player Shield
-  result = MP3player.begin();
+  int result = MP3player.begin();
   //check result, see readme for error codes.
   if(result != 0) {
     Serial.print(F("Error code: "));
