@@ -1,0 +1,14 @@
+interrupt=1
+debounce=500
+volume=75
+potSelect[0](0)=01longin.mp3
+potSelect[0](1)=02always.mp3
+potSelect[0](2)=03kloper.mp3
+potSelect[0](3)=04conten.mp3
+potSelect[0](4)=05change.mp3
+potSelect[0](5)=06animat.mp3
+potSelect[0](6)=07venice.mp3
+potSelect[0](7)=08shinin.mp3
+potSelect[0](8)=09whnevr.mp3
+potSelect[0](9)=10knees.mp3
+potSelect[0](10)=11twelve.mp3
