@@ -84,5 +84,23 @@ pushButton[0]=track001.mp3   -> plays track001.mp3 when pressed.
 
 *RESULT:* Tells the arduino to listen on an analog input pin, dictated by the value, to directly set the volume. Fully CW on the pot is max volume, and fully CCW is minimum.
 
+**KEYWORD: volume**
 
+*ACCEPTED VALUES:* an integer from 0 to 100, corresponding to a volume level 0-100%
+
+*RESULT:* Changes the default volume at which the shield produces audio.
+
+**KEYWORD: potSelect**
+
+*ACCEPTED VALUES:* any audio file track name as it appears on the memory card.
+
+*EXAMPLES:* 
+
+potSelect[0](0)=track001.mp3       -> using input 0, add track001.mp3 as the first track to select
+potSelect[0](1)=track002.mp3       -> using input 0, add track002.mp3 as the second track to select
+potSelect[0](2)=track003.mp3       -> using input 0, add track003.mp3 as the third track to select
+
+Using the above code, the player would automatically divide the pot into 3 divisions, and play one of each of the list tracksper division.
+
+*RESULT:* Tells the arduino to listen on an analog input pin, dictated by the value, to select between the tracks listed in the configuration file.
 
