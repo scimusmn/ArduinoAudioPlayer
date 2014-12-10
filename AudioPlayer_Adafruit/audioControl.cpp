@@ -63,7 +63,9 @@ void audioCmd::execute(){
     int newVal = analogRead(input);
   
     int newTrack = map(newVal,0,1023,0,numTracks);
-    if(invertPS) newTrack = numTracks-newTrack;
+    if(invertPS){
+      if(newTrack!=0) newTrack = numTracks-newTrack;
+    }
     int segment = 1023/numTracks;
     
     if(newTrack!=nextTrack&&(newVal%segment)>10&&(newVal%segment)<segment-10){
