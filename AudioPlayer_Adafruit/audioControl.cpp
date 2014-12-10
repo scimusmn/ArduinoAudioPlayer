@@ -27,7 +27,7 @@ audioCmd::audioCmd(){
 
 void audioCmd::execute(){
   if(type==LOOP){
-    if(mp3->stopped()&&numTracks) play(numTracks-1);
+    if(mp3->stopped()) play(numTracks-1);
   }
   else if(type==BUTTON_PRESS){
     bool bRead = digitalRead(input);
@@ -61,7 +61,7 @@ void audioCmd::execute(){
   else if(type==POT_SELECT){
     int newVal = analogRead(input);
   
-    int newTrack = map(newVal,0,1023,0,numTracks);
+    int newTrack = map(newVal,0,1023,numTracks,0);
     int segment = 1023/numTracks;
     
     if(newTrack!=nextTrack&&(newVal%segment)>10&&(newVal%segment)<segment-10){
