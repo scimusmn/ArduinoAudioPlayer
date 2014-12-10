@@ -10,6 +10,7 @@ static bool audioInterrupt = false;
 static bool once = false;
 static bool hold = false;
 static bool playing = false;
+static bool invertPS = false;
 static bool stopOnRelease = false;
 static int debounceTime =0;
 
@@ -61,7 +62,8 @@ void audioCmd::execute(){
   else if(type==POT_SELECT){
     int newVal = analogRead(input);
   
-    int newTrack = map(newVal,0,1023,numTracks,0);
+    int newTrack = map(newVal,0,1023,0,numTracks);
+    if(invertPS) newTrack = numTracks-newTrack;
     int segment = 1023/numTracks;
     
     if(newTrack!=nextTrack&&(newVal%segment)>10&&(newVal%segment)<segment-10){
@@ -132,6 +134,7 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
         else if(curLine.indexOf("volPot")>=0) volPot = curLine.substring(curLine.indexOf('=')+1).toInt();
         else if(curLine.indexOf("interrupt")>=0) audioInterrupt = curLine.substring(curLine.indexOf('=')+1).toInt();
         else if(curLine.indexOf("debounce")>=0) debounceTime = curLine.substring(curLine.indexOf('=')+1).toInt();
+        else if(curLine.indexOf("invertPotSelect")>=0) invertPS = curLine.substring(curLine.indexOf('=')+1).toInt();
         else if(curLine.indexOf("once")>=0) once = curLine.substring(curLine.indexOf('=')+1).toInt(),Serial.println("once!");//cout << "once" << endl;
         else if(curLine.indexOf("stopOnRelease")>=0) stopOnRelease = curLine.substring(curLine.indexOf('=')+1).toInt();
         else if(curLine.indexOf("volume")>=0){
