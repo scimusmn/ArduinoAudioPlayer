@@ -23,7 +23,7 @@ audioCmd::audioCmd(){
   invert = false;
   pressed =false;
   curTrack = 0;
-  memset(track,0,16);
+  //memset(track,0,16);
 }
 
 void audioCmd::execute(){
@@ -68,14 +68,18 @@ void audioCmd::execute(){
     }
     int segment = 1023/numTracks;
     
-    if(newTrack!=nextTrack&&(newVal%segment)>10&&(newVal%segment)<segment-10){
-      Serial.print("New track is ");
-      Serial.println(newTrack,DEC);
-      nextTrack=newTrack;
-      mp3->stopPlaying();
-      mp3->softReset();
-      lTimer = debounceTime+millis();
-      elapsed = false;
+    if(newTrack!=nextTrack&&(newVal%segment)>segment/4&&(newVal%segment)<3*segment/4){
+      //Serial.print("New track key is ");
+      //Serial.println(abs((nextTrack-newTrack)%numTracks),DEC);
+      //if(abs(nextTrack-newTrack)==1||abs(nextTrack-newTrack)==numTracks-1){
+        Serial.print("New track is ");
+        Serial.println(newTrack,DEC);
+        nextTrack=newTrack;
+        mp3->stopPlaying();
+        mp3->softReset();
+        lTimer = debounceTime+millis();
+        elapsed = false;
+      //}
     }
     
     if(debounce()){
@@ -122,11 +126,9 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
     while (cfg.peek()>=0){//sdin.getline(buffer, 32, '\n') || sdin.gcount()) {
       char newRead=cfg.read();
       if(newRead>=32) buffer[linePos++] = newRead;              //if newRead is a printed char
-      if(linePos>=32||cfg.peek()=='\n'||cfg.peek()<=0){
-        curLine="";
-        for(int j=0; j<linePos; j++){
-          curLine += String(buffer[j]);
-        }
+      if(linePos>=32||cfg.peek()=='\n'||cfg.peek()=='\r'||cfg.peek()<=0){
+        String curLine="";
+        curLine=buffer;
         Serial.print(line_number,DEC);
         Serial.print(": ");
         Serial.println(buffer);
@@ -152,15 +154,18 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
           numCmds++;
         }
         else if(curLine.indexOf("pushButton")>=0){
+          int val = curLine.substring(curLine.indexOf('[')+1,curLine.indexOf(']')).toInt();
           String track = curLine.substring(curLine.indexOf('=')+1);
           cmds[numCmds] = new audioCmd();
           cmds[numCmds]->type=BUTTON_PRESS;
+          cmds[numCmds]->track[0]=track;
+          Serial.println(track);
           if(curLine.indexOf("!")>=0) cmds[numCmds]->invert=true;//cout << "Invert" << endl;
-          cmds[numCmds]->input=curLine.substring(curLine.indexOf('[')+1,curLine.indexOf(']')).toInt()+14;
+          cmds[numCmds]->input=val+14;
+          Serial.println(cmds[numCmds]->track[0]);
           Serial.print("Button on pin ");
           Serial.println(cmds[numCmds]->input,DEC);
           pinMode(cmds[numCmds]->input,INPUT_PULLUP);
-          cmds[numCmds]->track[0]=track;
           cmds[numCmds]->numTracks=1;
           numCmds++;
         }
@@ -188,6 +193,7 @@ void audioControl::setup(Adafruit_VS1053_FilePlayer * dMP3){
           Serial.println(cmds[found]->numTracks,DEC);
         }
         memset(buffer,0,sizeof(buffer));
+        curLine="";
       }
     }
 }

@@ -12,7 +12,7 @@ enum cmdType {
 class audioCmd {
 public:
   //char track[16];
-  String track[16];
+  String track[10];
   int numTracks;
   int curTrack;
   int nextTrack;
@@ -34,7 +34,7 @@ class audioControl {
 public:
   int volEnc;
   int volPot;
-  String curLine;
+  //String curLine;
   int numCmds;
   audioCmd * cmds[5];
   char buffer[32];

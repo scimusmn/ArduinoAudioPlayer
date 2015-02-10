@@ -52,7 +52,7 @@ void setup() {
   //
   
   //musicPlayer.startPlayingFile("mojave.mp3");
-  //audioCtl.trigger();
+  audioCtl.trigger();
 }
 
 
