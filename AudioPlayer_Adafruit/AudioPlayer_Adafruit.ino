@@ -51,8 +51,8 @@ void setup() {
   
   //
   
-  //musicPlayer.startPlayingFile("mojave.mp3");
-  audioCtl.trigger();
+  //musicPlayer.startPlayingFile("station.mp3");
+  //audioCtl.trigger();
 }
 
 

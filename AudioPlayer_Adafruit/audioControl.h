@@ -6,7 +6,8 @@
 enum cmdType {
   LOOP,
   BUTTON_PRESS,
-  POT_SELECT
+  POT_SELECT,
+  BUTTON_SELECT
 };
 
 class audioCmd {
