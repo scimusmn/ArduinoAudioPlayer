@@ -60,34 +60,34 @@ void audioCmd::execute(){
     }
   } else if(type == BUTTON_SELECT){
     bool bRead = digitalRead(input);
-    //if(!invert) bRead = !bRead;
+    if(!invert) bRead = !bRead;
     
-    if(!pressed&&bRead){
-      Serial.println(bRead);
+    if(!bRead){
+      pressed = false;
+      if(stopOnRelease) mp3->stopPlaying();
+    }
+    else if(!pressed&&bRead){
       lTimer = debounceTime+millis();
       elapsed = false;
       pressed=true;
       Serial.println("Pressed!");
-    } else if(!bRead){
-      pressed = false;
     }
     
-    if(lTimer<millis()&&!elapsed&& pressed&&!once){
-      lTimer = debounceTime+millis();
-      elapsed = false;
-    }
+    if(lTimer<millis()&&!elapsed&& pressed&&!once) lTimer = debounceTime+millis(), elapsed = false;
     
     if(debounce()){
-      if(bRead&&numTracks){
-        mp3->stopPlaying();
-        Serial.println("Change track");
-        curTrack = (curTrack +1)%numTracks;
-        play(curTrack);
-        playing=true;
+      if(audioInterrupt||(!audioInterrupt&&mp3->stopped())){
+        if(bRead&&numTracks){
+          mp3->stopPlaying();
+          Serial.println("Change track");
+          curTrack = (curTrack +1)%numTracks;
+          play(curTrack);
+          playing=true;
+        }
       }
     }
     
-    if(mp3->stopped()) play(curTrack);
+    //if(mp3->stopped()) play(curTrack);
   }
   else if(type==POT_SELECT){
     int newVal = analogRead(input);
